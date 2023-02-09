@@ -1,0 +1,10 @@
+- label: First pipeline
+  commands:
+    - echo First command
+    - cat /proc/cpuinfo
+    - cat /etc/issue
+    - ls -alp
+    - cat content.txt
+  instance_size: medium
+  image: ubuntu:focal
+

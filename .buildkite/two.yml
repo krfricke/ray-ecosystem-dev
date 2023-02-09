@@ -1,0 +1,8 @@
+- label: Second pipeline
+  commands:
+    - echo Second command
+    - cat /proc/cpuinfo
+    - cat /etc/issue
+  instance_size: small 
+  image: ubuntu:latest
+
