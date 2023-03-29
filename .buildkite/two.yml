@@ -1,8 +1,9 @@
 - label: Second pipeline
   commands:
     - echo Second command
+    - bash install_docker.sh
     - docker ps
     - bash build.sh custom_image
     - docker run -t --rm custom_image cat /tmp/yeah
   instance_size: small 
-  image: cruizba/ubuntu-dind
+  image: ubuntu:focal
