@@ -18,4 +18,10 @@ apt-get install -y -qq \
     sudo unzip unrar apt-utils dialog tzdata wget rsync \
     language-pack-en tmux
 
+echo SHOW ENV
+env
+
 curl -o- https://get.docker.com | sh
+
+echo SHOW ENV
+env
