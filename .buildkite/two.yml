@@ -1,8 +1,8 @@
 - label: Second pipeline
   commands:
     - echo Second command
-    - cat /proc/cpuinfo
-    - cat /etc/issue
+    - docker ps
+    - bash build.sh custom_image
+    - docker run -t --rm custom_image cat /tmp/yeah
   instance_size: small 
-  image: ubuntu:latest
-
+  image: docker:20.10.23-dind-alpine3.17
