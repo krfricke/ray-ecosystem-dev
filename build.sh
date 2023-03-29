@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SHARED_DIR=/tmp/shared
+SHARED_DIR=/shared
 
 cp -rf ./docker $SHARED_DIR
 pushd $SHARED_DIR/docker

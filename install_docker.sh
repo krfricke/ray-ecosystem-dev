@@ -3,11 +3,6 @@
 export DEBIAN_FRONTEND=noninteractive
 export TZ=America/Los_Angeles
 
-export DOCKER_TLS_CERTDIR=/certs
-export DOCKER_HOST=tcp://docker:2376
-export DOCKER_TLS_VERIFY=1
-export DOCKER_CERT_PATH=/certs/client
-
 export locale -a
 export LC_ALL=en_US.utf8
 export LANG=en_US.utf8
