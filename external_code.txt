@@ -1,0 +1,3 @@
+src/tracked_file.py https://github.com/ray-project/ray/somewhere
+src/second_tracked_file.py https://github.com/ray-project/ray/else
+test/$file https://invalid
