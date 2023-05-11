@@ -20,6 +20,7 @@ jobs:
     - name: Check for changes in tracked files
       id: checkfile
       run: |
+        set -xe
         declare -A FILES_TO_EXTERNAL_URI
         FILES_TO_EXTERNAL_URI=(
           # This is a mapping from [source_code_file] --> [external URI]
