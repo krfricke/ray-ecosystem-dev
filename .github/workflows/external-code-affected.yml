@@ -81,8 +81,8 @@ jobs:
           for (let file of changedFiles) {
             const fileMessage = `- \`${file}\`: ${changedURIs[file]}`;
             const alreadyCommented = existingComments.data.some(comment => comment.body.includes(fileMessage));
+            commentBody += `\n${fileMessage}`;
             if (!alreadyCommented) {
-              commentBody += `\n${fileMessage}`;
               newChange = true;
             }
           }
