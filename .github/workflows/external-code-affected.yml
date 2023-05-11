@@ -40,7 +40,7 @@ jobs:
         for file in "${!FILES_TO_EXTERNAL_URI[@]}"; do
           uri="${FILES_TO_EXTERNAL_URI[$file]}"
           if echo "$GIT_DIFF" | grep -q "^$file$"; then
-            CHANGED_FILES_URIS+="$file||$uri++"
+            CHANGED_FILES_URIS+="$file||$uri\n"
           fi
         done
 
@@ -66,7 +66,7 @@ jobs:
           }
           
           // Rebuild map from changed files --> external URIs
-          const changedURIs = process.env.CHANGED_URIS.trim().split('++').reduce((acc, item) => {
+          const changedURIs = process.env.CHANGED_URIS.trim().split('\n').filter(item => item !== '').reduce((acc, item) => {
             const [file, ...uriParts] = item.split('||');
             const uri = uriParts.join('||'); // rejoin in case URI contained ||
             acc[file] = uri;
@@ -94,7 +94,7 @@ jobs:
           `;
 
           // For each changed file, create a comment if it has not been commented before
-          for (let file of changedURIs) {
+          for (let file in changedURIs) {
             const fileMessage = `- \`${file}\`: ${changedURIs[file]}`;
             const alreadyCommented = existingComments.data.some(comment => comment.body.includes(fileMessage));
             commentBody += `\n${fileMessage}`;
