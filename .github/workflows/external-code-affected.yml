@@ -9,6 +9,7 @@ on: pull_request_target
 
 jobs:
   check-changes:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
