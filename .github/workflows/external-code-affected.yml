@@ -42,6 +42,7 @@ jobs:
           fi
         
           FILES_TO_EXTERNAL_URI["$file"]="$uri"
+          echo "Tracking external code file: $file --> $uri"
         done < external_code.txt
 
         CHANGED_FILES_URIS=""
