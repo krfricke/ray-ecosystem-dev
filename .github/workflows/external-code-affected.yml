@@ -49,7 +49,7 @@ jobs:
         else
           echo "Changes detected in the following tracked files:"
           echo -e $CHANGED_FILES_URIS
-          echo "CHANGED_URIS=$(echo -e "$CHANGED_FILES_URIS")" >> $GITHUB_ENV
+          echo "CHANGED_URIS=\"$CHANGED_FILES_URIS"\"" >> $GITHUB_ENV
         fi
 
     - name: Add label and comment if a tracked file changed
