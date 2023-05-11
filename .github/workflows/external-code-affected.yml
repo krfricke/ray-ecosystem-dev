@@ -79,9 +79,9 @@ jobs:
           // For each changed file, create a comment if it has not been commented before
           for (let file of changedFiles) {
             const fileMessage = `- \`${file}\`: ${changedURIs[file]}`;
-            const alreadyCommented = existingComments.data.some(comment => comment.body.includes(fileChangeMessage));
+            const alreadyCommented = existingComments.data.some(comment => comment.body.includes(fileMessage));
             if (!alreadyCommented) {
-              commentBody += `\n${fileChangeMessage}`;
+              commentBody += `\n${fileMessage}`;
               newChange = true;
             }
           }
