@@ -31,7 +31,7 @@ jobs:
           uri=$(echo $line | cut -d' ' -f2)
         
           # Check that these conform to expected patterns
-          if [[ ! $file =~ $file_pattern || ! $uri =~ $uri_pattern ]]; then
+          if [[ ! "${file}" =~ ${file_pattern} ]] || [[ ! "${uri}" =~ ${uri_pattern} ]]; then
             echo "Invalid file path or URI detected: $file $uri"
             exit 1
           fi
