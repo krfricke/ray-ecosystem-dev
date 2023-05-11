@@ -1,0 +1,101 @@
+# Check if code checked into external resources (blogs, tutorials)
+# that we also track in our CI is affected by a PR.
+# In that case, we add a label to the PR (`external-code-affected`) and
+# add a comment to make sure that the external code still works and is
+# eventually updated.
+name: External code check
+
+on: pull_request_target
+
+jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+      
+    - name: Check for changes in tracked files
+      id: checkfile
+      run: |
+        declare -A FILES_TO_EXTERNAL_URI
+        FILES_TO_EXTERNAL_URI=(
+          # This is a mapping from [source_code_file] --> [external URI]
+          # When `source_code_file` is changed, the `external URI` should be reviewed.
+          ["src/tracked_file.py"]="https://github.com/ray-project/ray/somewhere"
+          ["src/second_tracked_file.py"]="https://github.com/ray-project/ray/else"
+          # Add more fils below.
+        )
+        # Build regex pattern
+        FILES_PATTERN=$(IFS='|' ; echo "${!FILES_TO_EXTERNAL_URI[*]}")
+        # Get changed files
+        FILE_CHANGE=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep -E $FILES_PATTERN)
+        # Serialize map to consume in github script later
+        URI_LIST=""
+        for file in $FILE_CHANGE
+        do
+          URI_LIST+="$file||${FILES_TO_EXTERNAL_URI[$file]} "
+        done
+        echo "::set-output name=changed_files::$FILE_CHANGE"
+        echo "::set-output name=changed_uris::$URI_LIST"
+
+    - name: Add label and comment if a tracked file changed
+      uses: actions/github-script@v4
+      if: steps.checkfile.outputs.changed_files
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const changedFiles = '${{ steps.checkfile.outputs.changed_files }}'.split('\n');
+          const changedURIs = '${{ steps.checkfile.outputs.changed_uris }}'.trim().split(' ').reduce((acc, item) => {
+            const [file, ...uriParts] = item.split('||');
+            const uri = uriParts.join('||'); // rejoin in case URI contained ||
+            acc[file] = uri;
+            return acc;
+          }, {});
+
+          // Get existing comments
+          const existingComments = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number
+          });
+
+          var newChange = false;
+
+          var commentBody = `## Attention: External code changed
+
+          This PR changes code or examples that are used or cited in external sources,
+          e.g. blog posts.
+
+          Before merging this PR, please make sure that the code in the external
+          sources is still working, and consider updating them to reflect the changes.
+
+          The affected files and the external sources are:
+          `;
+
+          // For each changed file, create a comment if it has not been commented before
+          for (let file of changedFiles) {
+            const fileMessage = `- \`${file}\`: ${changedURIs[file]}`;
+            const alreadyCommented = existingComments.data.some(comment => comment.body.includes(fileChangeMessage));
+            if (!alreadyCommented) {
+              commentBody += `\n${fileChangeMessage}`;
+              newChange = true;
+            }
+          }
+
+          if (newChange) {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: commentBody
+            });
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['external-code-affected']
+            });
+          }
