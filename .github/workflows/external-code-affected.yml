@@ -39,7 +39,7 @@ jobs:
             CHANGED_FILES_URIS+="$file||$uri++"
           fi
         done
-        x`
+
         if [ -z "CHANGED_FILES_URIS" ]; then
           echo "No changes in tracked files detected."
         else
