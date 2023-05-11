@@ -57,9 +57,42 @@ jobs:
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
+          const commentHeader = `## Attention: External code changed``
+          
+          // Get existing comments
+          const existingComments = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number
+          });
+          
+          // ATTN: The headline has to be kept in sync with the commentBody variable
+          let commentToUpdate = existingComments.data.find(comment => 
+            comment.user.login === 'github-actions[bot]' && comment.body.startsWith(commentHeader)
+          );
+          
           // Check if there are no changed files
           if (!process.env.CHANGED_FILES_URIS || process.env.CHANGED_FILES_URIS.trim() === '') {
             console.log("No changes in tracked files detected.")
+          
+            if (commentToUpdate) {
+                var commentBody = `${comment_header}
+      
+                A previous version of this PR changed code that is used or cited in 
+                external sources, e.g. blog posts.
+          
+                It looks like these changes have been reverted or are otherwise not
+                present in this PR anymore. Please still carefully review the changes
+                to make sure code we use in external sources still works.`;
+          
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: commentToUpdate.id,
+                  body: commentBody
+                });    
+            }
+          
             return
           }
           
@@ -74,22 +107,11 @@ jobs:
           console.log(process.env.CHANGED_FILES_URIS);
           console.log(changedURIs);
 
-          // Get existing comments
-          const existingComments = await github.rest.issues.listComments({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number
-          });
-          
-          let commentToUpdate = existingComments.data.find(comment => 
-            comment.user.login === 'github-actions[bot]' && comment.body.startsWith("## Attention: External code changed")
-          );
-
           var newChange = false;
 
-          var commentBody = `## Attention: External code changed
+          var commentBody = `${comment_header}
 
-          This PR changes code or examples that are used or cited in external sources,
+          This PR changes code that is used or cited in external sources,
           e.g. blog posts.
 
           Before merging this PR, please make sure that the code in the external
