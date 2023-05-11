@@ -78,12 +78,12 @@ jobs:
             if (commentToUpdate) {
                 var commentBody = `${commentHeader}
       
-                A previous version of this PR changed code that is used or cited in 
-                external sources, e.g. blog posts.
+          A previous version of this PR changed code that is used or cited in 
+          external sources, e.g. blog posts.
           
-                It looks like these changes have been reverted or are otherwise not
-                present in this PR anymore. Please still carefully review the changes
-                to make sure code we use in external sources still works.`;
+          It looks like these changes have been reverted or are otherwise not
+          present in this PR anymore. Please still carefully review the changes
+          to make sure code we use in external sources still works.`;
           
                 await github.rest.issues.updateComment({
                   owner: context.repo.owner,
@@ -120,16 +120,17 @@ jobs:
           The affected files and the external sources are:
           `;
 
-          // For each changed file, create a comment if it has not been commented before
           for (let file in changedURIs) {
             const fileMessage = `- \`${file}\`: ${changedURIs[file]}`;
-            if (!commentToUpdate || !commentToUpdate.body.includes(fileMessage)) {
-              newChange = true;
-            }
+            // We may only want to update the comment if a new file has been detected
+            // if (!commentToUpdate || !commentToUpdate.body.includes(fileMessage)) {
+            //   newChange = true;
+            // }
+            newChange = true;
             commentBody += `\n${fileMessage}`;
           }
 
-          if (newChange) {
+          if (changedURIs) {
             if (commentToUpdate) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
