@@ -76,7 +76,7 @@ jobs:
             console.log("No changes in tracked files detected.")
           
             if (commentToUpdate) {
-                var commentBody = `${comment_header}
+                var commentBody = `${commentHeader}
       
                 A previous version of this PR changed code that is used or cited in 
                 external sources, e.g. blog posts.
@@ -109,7 +109,7 @@ jobs:
 
           var newChange = false;
 
-          var commentBody = `${comment_header}
+          var commentBody = `${commentHeader}
 
           This PR changes code that is used or cited in external sources,
           e.g. blog posts.
