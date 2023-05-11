@@ -101,7 +101,7 @@ jobs:
           // For each changed file, create a comment if it has not been commented before
           for (let file in changedURIs) {
             const fileMessage = `- \`${file}\`: ${changedURIs[file]}`;
-            if (!commentToUpdate || !commentToUpdate.body.includes(fileMessage) {
+            if (!commentToUpdate || !commentToUpdate.body.includes(fileMessage)) {
               newChange = True;
             }
             commentBody += `\n${fileMessage}`;
