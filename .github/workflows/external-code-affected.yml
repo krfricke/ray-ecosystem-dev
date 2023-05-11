@@ -132,12 +132,15 @@ jobs:
 
           if (changedURIs) {
             if (commentToUpdate) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: commentToUpdate.id,
-                body: commentBody
-              });          
+              // Only update if content changed
+              if (commentBody !== commentToUpdate.body) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: commentToUpdate.id,
+                  body: commentBody
+                });       
+              }
             } else {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
