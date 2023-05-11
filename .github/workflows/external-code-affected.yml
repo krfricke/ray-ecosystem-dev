@@ -32,7 +32,7 @@ jobs:
         # Build regex pattern
         FILES_PATTERN=$(IFS='|' ; echo "${!FILES_TO_EXTERNAL_URI[*]}")
         # Get changed files
-        FILE_CHANGE=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep -E $FILES_PATTERN)
+        FILE_CHANGE=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep -E $FILES_PATTERN)
         # Serialize map to consume in github script later
         URI_LIST=""
         for file in $FILE_CHANGE
