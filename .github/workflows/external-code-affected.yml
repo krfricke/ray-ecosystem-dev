@@ -33,7 +33,7 @@ jobs:
         
         CHANGED_FILES_URIS=""
         
-        for ITEM in "${TRACKED_FILES[@]}"; do
+        for ITEM in "${FILES_TO_EXTERNAL_URI[@]}"; do
           FILE="${ITEM%%||*}"
           URI="${ITEM##*||}"
           if git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.sha }} | grep -q "^$FILE$"; then
@@ -41,7 +41,7 @@ jobs:
           fi
         done
         
-        if [ -z "$CHANGED_FILES" ]; then
+        if [ -z "CHANGED_FILES_URIS" ]; then
           echo "No changes in tracked files detected."
         else
           echo "Changes detected in the following tracked files:"
@@ -51,7 +51,6 @@ jobs:
 
     - name: Add label and comment if a tracked file changed
       uses: actions/github-script@v5
-      if: steps.checkfile.outputs.changed_files
       env:
         CHANGED_URIS: ${{ env.CHANGED_URIS }}
       with:
