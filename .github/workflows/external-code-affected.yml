@@ -36,7 +36,7 @@ jobs:
         for file in "${!FILES_TO_EXTERNAL_URI[@]}"; do
           uri="${FILES_TO_EXTERNAL_URI[$file]}"
           if git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.sha }} | grep -q "^$file$"; then
-            CHANGED_FILES_URIS+="$file||$uri!!"
+            CHANGED_FILES_URIS+="$file||$uri++"
           fi
         done
         x`
@@ -62,7 +62,7 @@ jobs:
           }
           
           // Rebuild map from changed files --> external URIs
-          const changedURIs = process.env.CHANGED_URIS.trim().split('!!').reduce((acc, item) => {
+          const changedURIs = process.env.CHANGED_URIS.trim().split('++').reduce((acc, item) => {
             const [file, ...uriParts] = item.split('||');
             const uri = uriParts.join('||'); // rejoin in case URI contained ||
             acc[file] = uri;
