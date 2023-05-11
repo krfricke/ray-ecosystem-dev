@@ -40,7 +40,7 @@ jobs:
         for file in "${!FILES_TO_EXTERNAL_URI[@]}"; do
           uri="${FILES_TO_EXTERNAL_URI[$file]}"
           if echo "$GIT_DIFF" | grep -q "^$file$"; then
-            CHANGED_FILES_URIS+="$file||$uri"$'\n'
+            CHANGED_FILES_URIS+="$file||$uri++"
           fi
         done
 
@@ -64,7 +64,7 @@ jobs:
           }
           
           // Rebuild map from changed files --> external URIs
-          const changedURIs = process.env.CHANGED_FILES_URIS.trim().split('\n').filter(item => item !== '').reduce((acc, item) => {
+          const changedURIs = process.env.CHANGED_FILES_URIS.trim().split('++').filter(item => item !== '').reduce((acc, item) => {
             const [file, ...uriParts] = item.split('||');
             const uri = uriParts.join('||'); // rejoin in case URI contained ||
             acc[file] = uri;
