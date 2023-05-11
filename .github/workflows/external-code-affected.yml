@@ -39,7 +39,7 @@ jobs:
         
         for file in "${!FILES_TO_EXTERNAL_URI[@]}"; do
           uri="${FILES_TO_EXTERNAL_URI[$file]}"
-          if echo $GIT_DIFF | grep -q "^$file$"; then
+          if echo "$GIT_DIFF" | grep -q "^$file$"; then
             CHANGED_FILES_URIS+="$file||$uri++"
           fi
         done
