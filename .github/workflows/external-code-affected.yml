@@ -32,10 +32,14 @@ jobs:
         )
         
         CHANGED_FILES_URIS=""
+        GIT_DIFF=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.sha }})
+        
+        echo "All changed files:"
+        echo -e $GIT_DIFF
         
         for file in "${!FILES_TO_EXTERNAL_URI[@]}"; do
           uri="${FILES_TO_EXTERNAL_URI[$file]}"
-          if git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.sha }} | grep -q "^$file$"; then
+          if echo $GIT_DIFF | grep -q "^$file$"; then
             CHANGED_FILES_URIS+="$file||$uri++"
           fi
         done
