@@ -22,7 +22,7 @@ jobs:
       id: checkfile
       run: |
         set -xe
-        file_pattern="^[a-zA-Z0-9_\/.-]*$"
+        file_pattern="^[a-zA-Z0-9_/.-]+$"
         uri_pattern="^https?://[a-zA-Z0-9_.:/\#&-]+$""
 
         declare -A FILES_TO_EXTERNAL_URI
@@ -31,8 +31,8 @@ jobs:
           uri=$(echo $line | cut -d' ' -f2)
         
           # Check that these conform to expected patterns
-          if ! [[ $file =~ "$file_pattern" && $uri =~ "$uri_pattern" ]]; then
-            echo "Invalid file path or URI detected: $line"
+          if [[ ! $file =~ "$file_pattern" || ! $uri =~ "$uri_pattern" ]]; then
+            echo "Invalid file path or URI detected: $file $uri"
             exit 1
           fi
         
