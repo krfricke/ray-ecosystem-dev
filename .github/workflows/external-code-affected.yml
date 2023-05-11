@@ -32,7 +32,7 @@ jobs:
         )
         
         CHANGED_FILES_URIS=""
-        GIT_DIFF=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.sha }})
+        GIT_DIFF=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
         
         echo "All changed files:"
         echo -e $GIT_DIFF
