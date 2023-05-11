@@ -40,7 +40,7 @@ jobs:
         for file in "${!FILES_TO_EXTERNAL_URI[@]}"; do
           uri="${FILES_TO_EXTERNAL_URI[$file]}"
           if echo "$GIT_DIFF" | grep -q "^$file$"; then
-            CHANGED_FILES_URIS+="$file||$uri\n"
+            CHANGED_FILES_URIS+="$file||$uri"$'\n'
           fi
         done
 
@@ -49,31 +49,29 @@ jobs:
         else
           echo "Changes detected in the following tracked files:"
           echo -e $CHANGED_FILES_URIS
-          echo "CHANGED_URIS=$CHANGED_FILES_URIS" >> $GITHUB_ENV
+          echo "CHANGED_FILES_URIS=$(echo -e "$CHANGED_FILES_URIS")" >> $GITHUB_ENV
         fi
 
     - name: Add label and comment if a tracked file changed
       uses: actions/github-script@v5
-      env:
-        CHANGED_FILES_URIS: ${{ env.CHANGED_FILES_URIS }}
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
           // Check if there are no changed files
-          if (!process.env.CHANGED_URIS || process.env.CHANGED_URIS.trim() === '') {
+          if (!process.env.CHANGED_FILES_URIS || process.env.CHANGED_FILES_URIS.trim() === '') {
             console.log("No changes in tracked files detected.")
             return
           }
           
           // Rebuild map from changed files --> external URIs
-          const changedURIs = process.env.CHANGED_URIS.trim().split('\n').filter(item => item !== '').reduce((acc, item) => {
+          const changedURIs = process.env.CHANGED_FILES_URIS.trim().split('\n').filter(item => item !== '').reduce((acc, item) => {
             const [file, ...uriParts] = item.split('||');
             const uri = uriParts.join('||'); // rejoin in case URI contained ||
             acc[file] = uri;
             return acc;
           }, {});
           
-          console.log(process.env.CHANGED_URIS);
+          console.log(process.env.CHANGED_FILES_URIS);
           console.log(changedURIs);
 
           // Get existing comments
