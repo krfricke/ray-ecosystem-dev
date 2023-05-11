@@ -22,15 +22,23 @@ jobs:
       id: checkfile
       run: |
         set -xe
+        file_pattern="^[-a-zA-Z0-9_\/.]*$"
+        uri_pattern="^https?://[a-zA-Z0-9-._:/&#]+"
+
         declare -A FILES_TO_EXTERNAL_URI
-        FILES_TO_EXTERNAL_URI=(
-          # This is a mapping from [source_code_file] --> [external URI]
-          # When `source_code_file` is changed, the `external URI` should be reviewed.
-          ["src/tracked_file.py"]="https://github.com/ray-project/ray/somewhere"
-          ["src/second_tracked_file.py"]="https://github.com/ray-project/ray/else"
-          # Add more fils below.
-        )
+        while read -r line; do
+          file=$(echo $line | cut -d' ' -f1)
+          uri=$(echo $line | cut -d' ' -f2)
         
+          # Check that these conform to expected patterns
+          if ! [[ $file =~ $file_pattern && $uri =~ $uri_pattern ]]; then
+            echo "Invalid file path or URI detected: $line"
+            exit 1
+          fi
+        
+          FILES_TO_EXTERNAL_URI["$file"]="$uri"
+        done < external_code.txt
+
         CHANGED_FILES_URIS=""
         GIT_DIFF=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
         
@@ -57,9 +65,42 @@ jobs:
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
+          const commentHeader = `## Attention: External code changed`
+          
+          // Get existing comments
+          const existingComments = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number
+          });
+          
+          // ATTN: The headline has to be kept in sync with the commentBody variable
+          let commentToUpdate = existingComments.data.find(comment => 
+            comment.user.login === 'github-actions[bot]' && comment.body.startsWith(commentHeader)
+          );
+          
           // Check if there are no changed files
           if (!process.env.CHANGED_FILES_URIS || process.env.CHANGED_FILES_URIS.trim() === '') {
             console.log("No changes in tracked files detected.")
+          
+            if (commentToUpdate) {
+                var commentBody = `${commentHeader}
+      
+          A previous version of this PR changed code that is used or cited in 
+          external sources, e.g. blog posts.
+          
+          It looks like these changes have been reverted or are otherwise not
+          present in this PR anymore. Please still carefully review the changes
+          to make sure code we use in external sources still works.`;
+          
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: commentToUpdate.id,
+                  body: commentBody
+                });    
+            }
+          
             return
           }
           
@@ -74,22 +115,11 @@ jobs:
           console.log(process.env.CHANGED_FILES_URIS);
           console.log(changedURIs);
 
-          // Get existing comments
-          const existingComments = await github.rest.issues.listComments({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number
-          });
-          
-          let commentToUpdate = existingComments.data.find(comment => 
-            comment.user.login === 'github-actions[bot]' && comment.body.startsWith("## Attention: External code changed")
-          );
-
           var newChange = false;
 
-          var commentBody = `## Attention: External code changed
+          var commentBody = `${commentHeader}
 
-          This PR changes code or examples that are used or cited in external sources,
+          This PR changes code that is used or cited in external sources,
           e.g. blog posts.
 
           Before merging this PR, please make sure that the code in the external
@@ -98,23 +128,27 @@ jobs:
           The affected files and the external sources are:
           `;
 
-          // For each changed file, create a comment if it has not been commented before
           for (let file in changedURIs) {
             const fileMessage = `- \`${file}\`: ${changedURIs[file]}`;
-            if (!commentToUpdate || !commentToUpdate.body.includes(fileMessage) {
-              newChange = True;
-            }
+            // We may only want to update the comment if a new file has been detected
+            // if (!commentToUpdate || !commentToUpdate.body.includes(fileMessage)) {
+            //   newChange = true;
+            // }
+            newChange = true;
             commentBody += `\n${fileMessage}`;
           }
 
-          if (newChange) {
+          if (changedURIs) {
             if (commentToUpdate) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: commentToUpdate.id,
-                body: commentBody
-              });          
+              // Only update if content changed
+              if (commentBody !== commentToUpdate.body) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: commentToUpdate.id,
+                  body: commentBody
+                });       
+              }
             } else {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
