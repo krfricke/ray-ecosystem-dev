@@ -80,6 +80,10 @@ jobs:
             repo: context.repo.repo,
             issue_number: context.issue.number
           });
+          
+          let commentToUpdate = existingComments.data.find(comment => 
+            comment.user.login === 'github-actions[bot]' && comment.body.startsWith("## Attention: External code changed")
+          );
 
           var newChange = false;
 
@@ -97,20 +101,28 @@ jobs:
           // For each changed file, create a comment if it has not been commented before
           for (let file in changedURIs) {
             const fileMessage = `- \`${file}\`: ${changedURIs[file]}`;
-            const alreadyCommented = existingComments.data.some(comment => comment.body.includes(fileMessage));
-            commentBody += `\n${fileMessage}`;
-            if (!alreadyCommented) {
-              newChange = true;
+            if (!commentToUpdate || !commentToUpdate.body.includes(fileMessage) {
+              newChange = True;
             }
+            commentBody += `\n${fileMessage}`;
           }
 
           if (newChange) {
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: commentBody
-            });
+            if (commentToUpdate) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: commentToUpdate.id,
+                body: commentBody
+              });          
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }
 
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
