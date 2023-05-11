@@ -102,7 +102,7 @@ jobs:
           for (let file in changedURIs) {
             const fileMessage = `- \`${file}\`: ${changedURIs[file]}`;
             if (!commentToUpdate || !commentToUpdate.body.includes(fileMessage)) {
-              newChange = True;
+              newChange = true;
             }
             commentBody += `\n${fileMessage}`;
           }
