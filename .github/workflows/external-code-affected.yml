@@ -43,7 +43,7 @@ jobs:
         echo "::set-output name=changed_uris::$URI_LIST"
 
     - name: Add label and comment if a tracked file changed
-      uses: actions/github-script@v4
+      uses: actions/github-script@v5
       if: steps.checkfile.outputs.changed_files
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
