@@ -41,7 +41,7 @@ jobs:
           fi
         done
         
-        if [ -z "$CHANGED_FILES" ]; then
+        if [ -z "CHANGED_FILES_URIS" ]; then
           echo "No changes in tracked files detected."
         else
           echo "Changes detected in the following tracked files:"
