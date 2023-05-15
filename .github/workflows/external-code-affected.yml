@@ -83,7 +83,7 @@ jobs:
           console.log(changedFileToURIs);
           console.log(changedFileToURIs.length);
           
-          if (changedFileToURIs.length === 0) {
+          if (!changedFileToURIs.length) {
             console.log("No changes to tracked files detected");
             commentBody = getCommentContentNotChanged(commentHeader);
             if (commentToUpdate && commentBody !== commentToUpdate.body) {
