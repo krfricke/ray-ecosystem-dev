@@ -46,6 +46,8 @@ jobs:
             readFileContent
           } = require('./pipelines/external_code_tracker/track_code');
           
+          const fs = require("fs");
+          
           const commentHeader = `## Attention: External code changed`
           
           // Get existing comments
@@ -61,7 +63,7 @@ jobs:
           );
           
           // Read and parse external_code.txt file
-          let externCodeFileContent = readFileContent("external_code.txt");
+          let externCodeFileContent = fs.readFileSync("doc/external/external_code.txt", "utf8");
           let trackedFilesToURIs = parseTrackedFilesToURIs(externCodeFileContent);
           
           // Get changed files from environment variable
