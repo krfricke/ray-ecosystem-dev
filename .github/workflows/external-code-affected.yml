@@ -29,7 +29,7 @@ jobs:
         echo "All changed files:"
         echo "$GIT_DIFF"
         
-        GIT_DIFF_SERIALIZED=$(echo "$GIT_DIFF" | tr '\n' '||')
+        GIT_DIFF_SERIALIZED=$(echo "$GIT_DIFF" | tr '\n' '|')
         echo "GIT_DIFF_SERIALIZED=$GIT_DIFF_SERIALIZED" >> $GITHUB_ENV
 
     - name: Add label and comment if a tracked file changed
