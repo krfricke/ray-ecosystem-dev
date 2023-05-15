@@ -61,7 +61,7 @@ jobs:
           );
           
           // Read and parse external_code.txt file
-          let externCodeFileContent = readFileContent("doc/external/external_code.txt");
+          let externCodeFileContent = readFileContent("external_code.txt");
           let trackedFilesToURIs = parseTrackedFilesToURIs(externCodeFileContent);
           
           // Get changed files from environment variable
