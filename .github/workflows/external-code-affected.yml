@@ -44,7 +44,7 @@ jobs:
             getCommentContentNotChanged,
             parseTrackedFilesToURIs,
             readFileContent
-          } = require('./pipelines/track_code');
+          } = require('./pipelines/external_code_tracker/track_code');
           
           const commentHeader = `## Attention: External code changed`
           
