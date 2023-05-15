@@ -82,9 +82,9 @@ jobs:
           console.log("changedFileToURIs")
           console.log(changedFileToURIs)
           
-          if (!changedFileToURIs) {
-            if (commentToUpdate) {
-                commentBody = getCommentContentNotChanged(commentHeader);
+          if (changedFileToURIs.length === 0) {
+            commentBody = getCommentContentNotChanged(commentHeader);
+            if (commentToUpdate && commentBody !== commentToUpdate.body) {
                 await github.rest.issues.updateComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -98,14 +98,14 @@ jobs:
           
               if (commentToUpdate) {
               // Only update if content changed
-              if (commentBody !== commentToUpdate.body) {
-                await github.rest.issues.updateComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  comment_id: commentToUpdate.id,
-                  body: commentBody
-                });
-              }
+                if (commentBody !== commentToUpdate.body) {
+                  await github.rest.issues.updateComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    comment_id: commentToUpdate.id,
+                    body: commentBody
+                  });
+                }
             } else {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
