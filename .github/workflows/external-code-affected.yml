@@ -63,7 +63,7 @@ jobs:
           );
           
           // Read and parse external_code.txt file
-          let externCodeFileContent = fs.readFileSync("doc/external/external_code.txt", "utf8");
+          let externCodeFileContent = fs.readFileSync("external_code.txt", "utf8");
           let trackedFilesToURIs = parseTrackedFilesToURIs(externCodeFileContent);
           
           // Get changed files from environment variable
